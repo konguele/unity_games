@@ -1,0 +1,53 @@
+using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
+ 
+public class Player : MonoBehaviour
+{
+    private List<MoveTowardsObject> followers = new List<MoveTowardsObject>();
+ 
+    public void AddFollower(MoveTowardsObject follower)
+    {
+        if(followers.Count > 0)
+        {
+            // new followers follow the last in the list
+            follower.target = followers.Last().transform;
+        }
+        else
+        {
+            // first follower follows the player
+            follower.target = transform;
+        }
+        followers.Add(follower);
+    }
+ 
+   
+    public void RemoveFollower(MoveTowardsObject follower)
+    {
+        // find the follower that is moving towards the one to be removed
+        MoveTowardsObject needsNewTarget = followers.Find(f => f.target == follower.transform);
+ 
+        // give that follower the target of the one to be removed
+        needsNewTarget.target = follower.target;
+ 
+        // remove the follower
+        followers.Remove(follower);
+    }
+}
+ 
+public class MoveTowardsObject : MonoBehaviour
+{
+    public Transform target;
+ 
+    // set in inspector
+    public float followSpeed;
+    public float stopDistance;
+ 
+    private void Update()
+    {
+        if(target != null && Vector3.Distance(transform.position, target.position) > stopDistance)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, target.position, followSpeed);
+        }
+    }
+}
